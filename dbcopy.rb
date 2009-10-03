@@ -32,9 +32,8 @@ class DestDB < ActiveRecord::Base
 end
 
 
-$models = SourceDB.connection.tables.map(&:classify)
+$models = SourceDB.connection.tables.reject { |m| m == "schema_migrations" }.map(&:classify)
 p $models
-# $models = %w(User)
 
 module Source; end
 module Dest; end
