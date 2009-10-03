@@ -1,0 +1,24 @@
+AR-DBCopy
+
+Simple script to copy data from one database to another.
+This script can be used to migrate from one Database system
+to another one, e.q. when the SQL dumps are not compatible.
+Database agnosticism is achieved by using ActiveRecord.
+
+The script just defines 2 connections, looks at the tables,
+creates ActiveRecord model classes on-the-fly and copies over
+the data.
+
+Configure the databases using the database.yml.example as a
+template (the format is the same as Rails's database.yml)
+
+Then, run the script. The script only copies data, not structure,
+so make sure that you created the schema  and all tables in
+the destination database already (use rake db:schema:load)
+
+
+Author: Michael Siebert <siebertm85@googlemail.com>
+
+This software was written in less than an hour. So it may
+contain bugs!
+

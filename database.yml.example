@@ -1,0 +1,13 @@
+source:
+  adapter: postgresql
+  host: localhost
+  username:
+  password:
+  database: test
+
+target:
+  adapter: mysql
+  host: localhost
+  username:
+  password:
+  database: test
