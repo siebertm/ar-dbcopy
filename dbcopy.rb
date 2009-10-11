@@ -33,14 +33,13 @@ end
 
 
 $models = SourceDB.connection.tables.reject { |m| m == "schema_migrations" }.map(&:classify)
-p $models
 
 module Source; end
 module Dest; end
 
 $models.each do |model|
-  eval "class Source::#{model} < SourceDB; set_table_name :#{model.tableize}; end"
-  eval "class Dest::#{model} < DestDB; set_table_name :#{model.tableize}; end"
+  eval "class Source::#{model} < SourceDB; set_inheritance_column :not_sti; set_table_name :#{model.tableize}; end"
+  eval "class Dest::#{model} < DestDB; set_inheritance_column :not_sti; set_table_name :#{model.tableize}; end"
 
   src = "Source::#{model}".constantize
   dst = "Dest::#{model}".constantize
@@ -50,13 +49,12 @@ $models.each do |model|
   puts "Copying #{model} (#{src.count} instances)..."
 
   i = 0
-  dst.transaction do
-    src.find_in_batches do |src_batch|
+  src.find_in_batches(:batch_size => 10_000) do |src_batch|
+    dst.transaction do
       src_batch.each do |src_inst|
         dst_inst = dst.new(src_inst.attributes)
         dst_inst.id = src_inst.id
         dst_inst.save!
-        # print "."
         i += 1
       end
 
