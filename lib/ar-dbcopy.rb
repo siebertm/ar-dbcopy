@@ -19,47 +19,55 @@
 require "rubygems"
 require 'active_record'
 
-$config = YAML.load_file(File.join(File.dirname(__FILE__), 'database.yml'))
+class ARDBcopy
+  class SourceDB < ActiveRecord::Base; end
+  class TargetDB < ActiveRecord::Base; end
 
-ActiveRecord::Base.logger = Logger.new(nil)
+  def initialize(config_file)
+    config = YAML.load_file(config_file)
 
-class SourceDB < ActiveRecord::Base
-  establish_connection $config["source"]
-end
+    ActiveRecord::Base.logger ||= Logger.new(nil)
 
-class DestDB < ActiveRecord::Base
-  establish_connection $config["target"]
-end
+    SourceDB.establish_connection(config["source"])
+    TargetDB.establish_connection(config["target"])
 
+    @tables = SourceDB.connection.tables.reject { |m| m == "schema_migrations" }
+  end
 
-$models = SourceDB.connection.tables.reject { |m| m == "schema_migrations" }.map(&:classify)
-
-module Source; end
-module Dest; end
-
-$models.each do |model|
-  eval "class Source::#{model} < SourceDB; set_inheritance_column :not_sti; set_table_name :#{model.tableize}; end"
-  eval "class Dest::#{model} < DestDB; set_inheritance_column :not_sti; set_table_name :#{model.tableize}; end"
-
-  src = "Source::#{model}".constantize
-  dst = "Dest::#{model}".constantize
-
-  dst.delete_all
-
-  puts "Copying #{model} (#{src.count} instances)..."
-
-  i = 0
-  src.find_in_batches(:batch_size => 10_000) do |src_batch|
-    dst.transaction do
-      src_batch.each do |src_inst|
-        dst_inst = dst.new(src_inst.attributes)
-        dst_inst.id = src_inst.id
-        dst_inst.save!
-        i += 1
+  def run
+    @tables.each do |table_name|
+      source_model = Class.new(SourceDB) do
+        set_inheritance_column(:not_sti)
+        set_table_name table_name
       end
 
-      puts i
+      dest_model = Class.new(TargetDB) do
+        set_inheritance_column(:not_sti)
+        set_table_name table_name
+      end
+
+      dest_model.delete_all
+
+      puts "Copying #{table_name} (#{source_model.count} instances)..."
+
+      i = 0
+      source_model.find_in_batches(:batch_size => 10_000) do |src_batch|
+        dest_model.transaction do
+          src_batch.each do |src_inst|
+            dst_inst = dest_model.new(src_inst.attributes)
+            dst_inst.id = src_inst.id
+            dst_inst.save!
+            i += 1
+          end
+
+          puts i
+        end
+      end
     end
   end
 end
 
+if __FILE__ == $0
+
+  ARDBcopy.new(ARGV[0]).run
+end
