@@ -4,7 +4,7 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{ar-dbcopy}
+  s.name = %q{ar_dbcopy}
   s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
@@ -24,20 +24,20 @@ Gem::Specification.new do |s|
      "README.rdoc",
      "Rakefile",
      "VERSION",
-     "ar-dbcopy.gemspec",
+     "ar_dbcopy.gemspec",
      "bin/ar_dbcopy",
      "database.yml.example",
-     "lib/ar-dbcopy.rb",
-     "test/ar-dbcopy_test.rb",
+     "lib/ar_dbcopy.rb",
+     "test/ar_dbcopy_test.rb",
      "test/test_helper.rb"
   ]
-  s.homepage = %q{http://github.com/siebertm/ar-dbcopy}
+  s.homepage = %q{http://github.com/siebertm/ar_dbcopy}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{migrate between databases using activerecord}
   s.test_files = [
-    "test/ar-dbcopy_test.rb",
+    "test/ar_dbcopy_test.rb",
      "test/test_helper.rb"
   ]
 

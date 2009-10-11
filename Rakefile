@@ -5,7 +5,8 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "ar_dbcopy"
-    gem.summary = %Q{migrate between databases using activerecord}
+    gem.summary = %Q{copy data from one dbms to another via active_record}
+    gem.description = %Q{copy data from one dbms to another via active_record}
     gem.email = "siebertm85@googlemail.com"
     gem.homepage = "http://github.com/siebertm/ar_dbcopy"
     gem.authors = ["Michael Siebert"]

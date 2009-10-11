@@ -16,6 +16,9 @@ Then, run the script. The script only copies data, not structure,
 so make sure that you created the schema  and all tables in
 the destination database already (use rake db:schema:load)
 
+== Example
+
+    ARDBCopy.new("database.yml", :copy_schema => true).run!
 
 This software was written in less than an hour. So it may
 contain bugs!
@@ -28,7 +31,7 @@ contain bugs!
   future version unintentionally.
 * Commit, do not mess with rakefile, version, or history.
   (if you want to have your own version, that is fine but
-   bump version in a commit by itself I can ignore when I pull)
+  bump version in a commit by itself I can ignore when I pull)
 * Send me a pull request. Bonus points for topic branches.
 
 == Copyright
