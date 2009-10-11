@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+class ARDBCopy::Application
+  def self.run!
+    @options = {}
+
+    @opts = OptionParser.new do |opts|
+      opts.banner = "Usage: #{$0} [options] database_yaml"
+
+      opts.separator "copy data between two databases defined in the given database_yaml"
+      opts.separator "uses the databases 'source' and 'target'"
+
+      opts.on "-c", "--with-schema", "also copy the schema to the target database" do |arg|
+        @options[:copy_schema] = arg
+      end
+
+      opts.on( '-h', '--help', 'Display this screen' ) do
+        puts opts
+        exit
+      end
+    end
+
+    @opts.parse!
+    ARDBCopy.new(ARGV[0], @options).run!
+  end
+end
+
+ARDBCopy::Application.run!

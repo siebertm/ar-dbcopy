@@ -19,11 +19,13 @@
 require "rubygems"
 require 'active_record'
 
-class ARDBcopy
+class ARDBCopy
   class SourceDB < ActiveRecord::Base; end
   class TargetDB < ActiveRecord::Base; end
 
-  def initialize(config_file)
+  def initialize(config_file, opts={})
+    @copy_schema = opts[:copy_schema]
+
     config = YAML.load_file(config_file)
 
     ActiveRecord::Base.logger ||= Logger.new(nil)
@@ -32,6 +34,11 @@ class ARDBcopy
     ActiveRecord::Base.establish_connection(config["target"])
 
     @tables = SourceDB.connection.tables.reject { |m| m == "schema_migrations" }
+  end
+
+  def run!
+    copy_schema if @copy_schema
+    copy_data
   end
 
   def copy_schema
