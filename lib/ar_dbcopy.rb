@@ -16,7 +16,6 @@
 # so make sure that you created the schema  and all tables in
 # the destination database already (use rake db:schema:load)
 #
-require "rubygems"
 require 'active_record'
 
 class ARDBCopy

@@ -1,4 +1,4 @@
-= AR-DBCopy
+= AR_DBCopy
 
 Simple script to copy data from one database to another.
 This script can be used to migrate from one Database system

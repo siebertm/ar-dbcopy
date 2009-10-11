@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'optparse'
+require 'ar_dbcopy'
 
 class ARDBCopy::Application
   def self.run!

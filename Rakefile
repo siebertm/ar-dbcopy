@@ -4,11 +4,10 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "ar-dbcopy"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.name = "ar_dbcopy"
+    gem.summary = %Q{migrate between databases using activerecord}
     gem.email = "siebertm85@googlemail.com"
-    gem.homepage = "http://github.com/siebertm/ar-dbcopy"
+    gem.homepage = "http://github.com/siebertm/ar_dbcopy"
     gem.authors = ["Michael Siebert"]
     gem.add_development_dependency "thoughtbot-shoulda"
     gem.add_dependency "activerecord"
@@ -53,7 +52,7 @@ Rake::RDocTask.new do |rdoc|
   end
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "ar-dbcopy #{version}"
+  rdoc.title = "ar_dbcopy #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end

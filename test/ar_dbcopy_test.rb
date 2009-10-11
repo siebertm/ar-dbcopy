@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ArDbcopyTest < Test::Unit::TestCase
+class ARDbcopyTest < Test::Unit::TestCase
   should "probably rename this file and start testing for real" do
     flunk "hey buddy, you should probably rename this file and start testing for real"
   end
