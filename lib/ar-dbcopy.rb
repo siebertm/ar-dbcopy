@@ -29,12 +29,21 @@ class ARDBcopy
     ActiveRecord::Base.logger ||= Logger.new(nil)
 
     SourceDB.establish_connection(config["source"])
-    TargetDB.establish_connection(config["target"])
+    ActiveRecord::Base.establish_connection(config["target"])
 
     @tables = SourceDB.connection.tables.reject { |m| m == "schema_migrations" }
   end
 
-  def run
+  def copy_schema
+    io = StringIO.new
+
+    ActiveRecord::SchemaDumper.dump(SourceDB.connection, io) # dump the schema from the source database
+    io.rewind
+
+    eval(io.read)
+  end
+
+  def copy_data
     @tables.each do |table_name|
       source_model = Class.new(SourceDB) do
         set_inheritance_column(:not_sti)
@@ -48,7 +57,7 @@ class ARDBcopy
 
       dest_model.delete_all
 
-      puts "Copying #{table_name} (#{source_model.count} instances)..."
+      puts "Copying #{table_name} (#{source_model.count} lines)..."
 
       i = 0
       source_model.find_in_batches(:batch_size => 10_000) do |src_batch|
@@ -69,5 +78,7 @@ end
 
 if __FILE__ == $0
 
-  ARDBcopy.new(ARGV[0]).run
+  copy = ARDBcopy.new(ARGV[0])
+  copy.copy_schema
+  copy.copy_data
 end
