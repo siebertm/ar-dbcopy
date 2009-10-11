@@ -1,4 +1,4 @@
-AR-DBCopy
+= AR-DBCopy
 
 Simple script to copy data from one database to another.
 This script can be used to migrate from one Database system
@@ -17,8 +17,20 @@ so make sure that you created the schema  and all tables in
 the destination database already (use rake db:schema:load)
 
 
-Author: Michael Siebert <siebertm85@googlemail.com>
-
 This software was written in less than an hour. So it may
 contain bugs!
 
+== Note on Patches/Pull Requests
+ 
+* Fork the project.
+* Make your feature addition or bug fix.
+* Add tests for it. This is important so I don't break it in a
+  future version unintentionally.
+* Commit, do not mess with rakefile, version, or history.
+  (if you want to have your own version, that is fine but
+   bump version in a commit by itself I can ignore when I pull)
+* Send me a pull request. Bonus points for topic branches.
+
+== Copyright
+
+Author: Copyright (c) 2009 Michael Siebert <siebertm85@googlemail.com>
