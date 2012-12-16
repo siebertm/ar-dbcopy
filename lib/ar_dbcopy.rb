@@ -17,6 +17,7 @@
 # the destination database already (use rake db:schema:load)
 #
 require 'active_record'
+require 'logger'
 
 class ARDBCopy
   class SourceDB < ActiveRecord::Base; end
