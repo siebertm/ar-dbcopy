@@ -20,20 +20,16 @@ require 'active_record'
 require 'logger'
 
 class ARDBCopy
-  class SourceDB < ActiveRecord::Base; end
-  class TargetDB < ActiveRecord::Base; end
+  attr_accessor :config, :tables
 
   def initialize(config_file, opts={})
     @copy_schema = opts[:copy_schema]
-
-    config = YAML.load_file(config_file)
+    @config = YAML.load_file(config_file)
 
     ActiveRecord::Base.logger ||= Logger.new(nil)
 
-    SourceDB.establish_connection(config["source"])
-    ActiveRecord::Base.establish_connection(config["target"])
-
-    @tables = SourceDB.connection.tables.reject { |m| m == "schema_migrations" }
+    ActiveRecord::Base.establish_connection(@config["source"])
+    @tables = ActiveRecord::Base.connection.tables.reject { |m| m == "schema_migrations" }
   end
 
   def run!
@@ -44,33 +40,44 @@ class ARDBCopy
   def copy_schema
     io = StringIO.new
 
-    ActiveRecord::SchemaDumper.dump(SourceDB.connection, io) # dump the schema from the source database
+    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, io) # dump the schema from the source database
     io.rewind
 
+    ActiveRecord::Base.establish_connection(config['target'])
     eval(io.read)
+
+    ActiveRecord::Base.establish_connection(config["source"])
   end
 
   def copy_data
-    @tables.each do |table_name|
-      source_model = Class.new(SourceDB) do
-        set_inheritance_column(:not_sti)
-        set_table_name table_name
-      end
+    tables.each do |table_name|
+      source_name = "#{table_name.classify}Source"
+      target_name = "#{table_name.classify}Target"
 
-      dest_model = Class.new(TargetDB) do
-        set_inheritance_column(:not_sti)
-        set_table_name table_name
+      source_model_tmp = Class.new(ActiveRecord::Base) do
+        self.table_name = table_name
+        self.inheritance_column = :_type_disabled
       end
+      source_model = Object.const_set(source_name, source_model_tmp)
+      source_model.establish_connection(config["source"])
 
-      dest_model.delete_all
+      target_model_tmp = Class.new(ActiveRecord::Base) do
+        self.table_name = table_name
+        self.inheritance_column = :_type_disabled
+      end
+      target_model = Object.const_set(target_name, target_model_tmp)
+      target_model.establish_connection(config["target"])
+
+      target_model.delete_all
 
       puts "Copying #{table_name} (#{source_model.count} lines)..."
 
       i = 0
       source_model.find_in_batches(:batch_size => 10_000) do |src_batch|
-        dest_model.transaction do
+        target_model.transaction do
           src_batch.each do |src_inst|
-            dst_inst = dest_model.new(src_inst.attributes)
+            puts " # #{table_name}: #{src_inst.id}"
+            dst_inst = target_model.new(src_inst.attributes)
             dst_inst.id = src_inst.id
             dst_inst.save!
             i += 1
@@ -79,12 +86,14 @@ class ARDBCopy
           puts i
         end
       end
+
+      source_model.remove_connection
+      target_model.remove_connection
     end
   end
 end
 
 if __FILE__ == $0
-
   copy = ARDBcopy.new(ARGV[0])
   copy.copy_schema
   copy.copy_data
